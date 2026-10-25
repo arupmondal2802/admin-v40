@@ -1,0 +1,13 @@
+{
+  "name": " V42",
+  "description": "A multi-step, dynamic form for service agents to log new service requests for customers, including customer details, service selection, add-ons, and invoice generation.admin dashboard,order creation ,lifecycle mangement,end to end data sync, subscription management,add on management,dynamic service form creation,with map serach/pin/fetch ,dynamic products,hub ,delivery calcaulation,ERP Hub,Metalead /website order synicng,new order model ui,dynamic service caterlogue, precise cusomter location tracking , Workers.js  backend and neon database",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ],
+  "prompt": ""
+}

@@ -1,0 +1,291 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and permissions",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "role": { "type": "string" },
+        "permissions": { "type": "array" }
+      },
+      "required": ["username", "role", "permissions"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "A service order/submission record",
+      "type": "object",
+      "properties": {
+        "submissionId": { "type": "string" },
+        "customerFirstName": { "type": "string" },
+        "customerLastName": { "type": "string" },
+        "streetAddress": { "type": "string" },
+        "mobileNumber": { "type": "string" },
+        "carNumber": { "type": "string" },
+        "carBrandModel": { "type": "string" },
+        "grandTotal": { "type": "number" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["submissionId", "customerFirstName", "customerLastName", "streetAddress", "mobileNumber", "carNumber", "carBrandModel", "grandTotal", "status", "timestamp"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Global application configuration settings",
+      "type": "object",
+      "properties": {
+        "googleSheetsUrl": { "type": "string" },
+        "googleDriveUploadUrl": { "type": "string" },
+        "customLogoUrl": { "type": "string" },
+        "mapplsApiKey": { "type": "string" },
+        "hubLatitude": { "type": "number" },
+        "hubLongitude": { "type": "number" },
+        "maxDistanceKm": { "type": "number" }
+      },
+      "required": ["googleSheetsUrl"]
+    },
+    "PredefinedServiceCategory": {
+      "title": "PredefinedServiceCategory",
+      "description": "Categories for predefined services",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "isEnabled": { "type": "boolean" }
+      },
+      "required": ["id", "name", "isEnabled"]
+    },
+    "PredefinedService": {
+      "title": "PredefinedService",
+      "description": "Individual services with pricing and area logic",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "pricing": { "type": "object" },
+        "isEnabled": { "type": "boolean" },
+        "serviceableRadiusKm": { "type": "number" },
+        "freeRadiusKm": { "type": "number" },
+        "convenienceFeePerKm": { "type": "number" },
+        "baseConvenienceFee": { "type": "number" }
+      },
+      "required": ["id", "name", "categoryId", "isEnabled"]
+    },
+    "DeliveryHub": {
+      "title": "DeliveryHub",
+      "description": "Service center/hub coordinates",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "type": { "type": "string" }
+      },
+      "required": ["id", "name", "latitude", "longitude", "type"]
+    },
+    "ProductRule": {
+      "title": "ProductRule",
+      "description": "Rules for service category, convenience fee logic",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "category": { "type": "string" },
+        "priority": { "type": "number" },
+        "hub": { "type": "string" },
+        "freeRadius": { "type": "number" },
+        "maxRadius": { "type": "number" },
+        "chargePerKm": { "type": "number" },
+        "roundTrip": { "type": "boolean" },
+        "requiresMainService": { "type": "boolean" }
+      },
+      "required": ["id", "type", "category"]
+    },
+    "CustomerBookEntry": {
+      "title": "CustomerBookEntry",
+      "description": "Saved customer record with multiple vehicles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "mobileNumber": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "streetAddress": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "eLoc": { "type": "string" },
+        "savedVehicles": { "type": "array" }
+      },
+      "required": ["id", "mobileNumber", "firstName", "lastName", "streetAddress", "savedVehicles"]
+    },
+    "ErpVehicle": {
+      "title": "ErpVehicle",
+      "description": "Full vehicle registration attributes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "brand": { "type": "string" },
+        "model": { "type": "string" },
+        "variant": { "type": "string" },
+        "fuelType": { "type": "string" },
+        "transmission": { "type": "string" },
+        "year": { "type": "number" },
+        "color": { "type": "string" },
+        "odometerReading": { "type": "number" },
+        "vinChassisNumber": { "type": "string" }
+      },
+      "required": ["id", "customerId", "brand", "model"]
+    },
+    "ErpSupplier": {
+      "title": "ErpSupplier",
+      "description": "Inventory product suppliers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "outstandingPayable": { "type": "number" }
+      },
+      "required": ["id", "name", "phone", "outstandingPayable"]
+    },
+    "ErpPurchaseOrder": {
+      "title": "ErpPurchaseOrder",
+      "description": "Replenishment procurement logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "orderDate": { "type": "string" },
+        "status": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "amountPaid": { "type": "number" },
+        "outstandingBalance": { "type": "number" }
+      },
+      "required": ["id", "supplierId", "orderDate", "status", "totalAmount", "amountPaid", "outstandingBalance"]
+    },
+    "ErpServiceRecipe": {
+      "title": "ErpServiceRecipe",
+      "description": "Product bill of materials per service",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "components": { "type": "array" },
+        "totalMaterialCost": { "type": "number" }
+      },
+      "required": ["id", "serviceId", "components", "totalMaterialCost"]
+    },
+    "ErpSalesDocument": {
+      "title": "ErpSalesDocument",
+      "description": "Quotations, Job Cards, and invoices",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "date": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" },
+        "grandTotal": { "type": "number" },
+        "amountPaid": { "type": "number" },
+        "outstandingBalance": { "type": "number" }
+      },
+      "required": ["id", "customerId", "date", "type", "status", "grandTotal", "amountPaid", "outstandingBalance"]
+    },
+    "ErpAccountBalances": {
+      "title": "ErpAccountBalances",
+      "description": "Consolidated current cash/bank ledgers",
+      "type": "object",
+      "properties": {
+        "cashInHand": { "type": "number" },
+        "bankBalance": { "type": "number" },
+        "upiBalance": { "type": "number" }
+      },
+      "required": ["cashInHand", "bankBalance", "upiBalance"]
+    },
+    "WarrantyRecord": {
+      "title": "WarrantyRecord",
+      "description": "Digital warranty coverage tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "productName": { "type": "string" },
+        "associatedService": { "type": "string" },
+        "startDate": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "status": { "type": "string" },
+        "notes": { "type": "string" },
+        "alertDaysBefore": { "type": "number" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "customerName", "customerPhone", "productName", "startDate", "expiryDate", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{username}": {
+      "schema": "User",
+      "description": "User profiles indexed by username"
+    },
+    "/submissions/{submissionId}": {
+      "schema": "Service",
+      "description": "Service submissions/orders"
+    },
+    "/settings/global": {
+      "schema": "Settings",
+      "description": "Global configurations and API keys"
+    },
+    "/predefinedServiceCategories/{id}": {
+      "schema": "PredefinedServiceCategory",
+      "description": "Predefined categories of service"
+    },
+    "/predefinedServices/{id}": {
+      "schema": "PredefinedService",
+      "description": "Predefined services with custom attributes"
+    },
+    "/deliveryHubs/{id}": {
+      "schema": "DeliveryHub",
+      "description": "Registered delivery hubs"
+    },
+    "/productRules/{id}": {
+      "schema": "ProductRule",
+      "description": "Travel and pricing policies"
+    },
+    "/customers/{id}": {
+      "schema": "CustomerBookEntry",
+      "description": "Saved customer contact and vehicle database"
+    },
+    "/erpVehicles/{id}": {
+      "schema": "ErpVehicle",
+      "description": "Registered vehicles database"
+    },
+    "/erpSuppliers/{id}": {
+      "schema": "ErpSupplier",
+      "description": "Registered suppliers ledger"
+    },
+    "/erpPurchaseOrders/{id}": {
+      "schema": "ErpPurchaseOrder",
+      "description": "Inventory purchase items"
+    },
+    "/erpServiceRecipes/{id}": {
+      "schema": "ErpServiceRecipe",
+      "description": "Chemical/product consumption recipes"
+    },
+    "/erpSalesDocuments/{id}": {
+      "schema": "ErpSalesDocument",
+      "description": "Sales ledger (Quotations, Job Cards, Invoices)"
+    },
+    "/erpAccountBalances/balances": {
+      "schema": "ErpAccountBalances",
+      "description": "Consolidated account ledger balances"
+    },
+    "/warranties/{id}": {
+      "schema": "WarrantyRecord",
+      "description": "Registered warranties tracker collection"
+    }
+  }
+}

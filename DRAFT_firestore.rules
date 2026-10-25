@@ -1,0 +1,195 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Reusable Global Security Helpers ---
+    function isSignedIn() {
+      // Since local auth with usernames/passwords is used instead of Firebase Auth,
+      // we allow reads/writes without a Firebase Auth session.
+      return true;
+    }
+
+    function isVerified() {
+      return isSignedIn();
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      // In development/preview, we fall back to authenticated users
+      return isSignedIn();
+    }
+
+    // --- Entity Specific Validation helpers ---
+    function isValidUser(data) {
+      return data.username is string && data.username.size() <= 100
+        && data.role is string && data.role.size() <= 50;
+    }
+
+    function isValidSubmission(data) {
+      return data.submissionId is string && data.submissionId.size() <= 128
+        && data.grandTotal is number && data.grandTotal >= 0;
+    }
+
+    // --- Matches per Collection ---
+
+    match /users/{username} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(username) && isValidUser(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /submissions/{submissionId} {
+      allow read: if true; // Public order summaries are supported
+      allow create: if isSignedIn() && isValidId(submissionId) && isValidSubmission(incoming());
+      allow update: if isSignedIn() && isValidId(submissionId) && isValidSubmission(incoming())
+                     && incoming().submissionId == existing().submissionId;
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /subscriptionPlans/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidId(id);
+    }
+
+    match /userSubscriptions/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /serviceTemplates/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /serviceRequests/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /notifications/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /locationHistory/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /miscSpends/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /bookkeeping/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /profitLoss/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /spendCategories/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /predefinedCosts/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /vehicleData/{id} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /tyreData/{id} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /pricingConfig/{id} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /predefinedServiceCategories/{id} {
+      allow read: if true;
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /predefinedServices/{id} {
+      allow read: if true;
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /deliveryHubs/{id} {
+      allow read: if true;
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /productRules/{id} {
+      allow read: if true;
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /customers/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /inventoryItems/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /inventoryMovements/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /expenses/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /recurringExpenses/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /auditLogs/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(id);
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only configured via console/backend
+    }
+  }
+}

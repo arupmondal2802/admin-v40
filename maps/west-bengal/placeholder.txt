@@ -1,0 +1,3 @@
+This placeholder file represents the directory where offline map tiles for West Bengal would be stored.
+In a production build, this folder would contain a structure like /maps/west-bengal/{z}/{x}/{y}.png with actual map images.
+The service worker is configured to cache files from this path for offline use.

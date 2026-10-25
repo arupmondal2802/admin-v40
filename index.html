@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, interactive-widget=resizes-content" />
+    <title>A Big Engine</title>
+    <meta name="description" content="A multi-step, dynamic form for service agents to log new service requests for customers, including customer details, service selection, add-ons, and invoice generation.">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0D2A4F">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    
+    <script>
+      // Immediately invoke to prevent flash of light mode on load
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+              display: ['Inter', 'system-ui', 'sans-serif'],
+              mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+            },
+            colors: {
+              'brand-blue': '#0D2A4F',
+              'brand-accent': '#f8bf2a',
+            }
+          }
+        }
+      }
+    </script>
+    <script defer src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js for Analytics -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg-primary: #f8fafc;
+    --text-primary: #0f172a;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+  }
+  :root.dark {
+    --bg-primary: #0b1324;
+    --text-primary: #f8fafc;
+    --bg-card: #151f32;
+    --border-color: #26334d;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
+  }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Allow text selection inside form inputs, textareas, and code containers */
+  input, textarea, [contenteditable="true"], select, code, pre, .selectable-text {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+
+  /* Android WebView & Native Picker Fix: Ensure high-contrast readable options and prevent blank white-on-white text */
+  select {
+    color: #0f172a;
+    background-color: #ffffff;
+    color-scheme: light;
+  }
+  select option, select optgroup, option, optgroup {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 14px;
+  }
+  .dark select {
+    color: #f8fafc;
+    background-color: #1e293b;
+    color-scheme: dark;
+  }
+  .dark select option, .dark select optgroup, .dark option, .dark optgroup {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+  }
+
+  /* Safe Area Inset Helpers (Android gesture bars, camera notches, pinholes) */
+  header, .safe-top {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-action-bar, .safe-bottom, [data-safe-bottom="true"] {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  .safe-area-insets {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* WCAG / Material 3 - Min 48x48dp Touch Boundaries */
+  .touch-target-48 {
+    min-width: 48px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hit-slop {
+    position: relative;
+  }
+  .hit-slop::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    bottom: -8px;
+    left: -8px;
+    right: -8px;
+  }
+
+  /* Prevent pull-to-refresh & gestures on maps, canvas, signature pad, and steppers */
+  canvas, .signature-pad, .leaflet-container, .gm-style, [data-interactive-canvas="true"], .stepper-drag {
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+  }
+  
+  /* Tabular numbers for financial, VINs, phone numbers, and timestamps */
+  .tabular-nums, .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Text hierarchy enhancements */
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+  }
+
+  /* Subtle border radius and crisp shadow rules for enterprise elements */
+  .enterprise-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scaleUp {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-backdrop {
+    animation: fadeIn 0.2s ease-out forwards;
+  }
+  .modal-content {
+    animation: scaleUp 0.2s ease-out forwards;
+  }
+  @keyframes scaleInCheck {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .animate-check {
+    animation: scaleInCheck 0.4s ease-out;
+  }
+  @media print {
+    body {
+      background-color: white !important;
+      font-family: 'Inter', sans-serif;
+    }
+    .no-print {
+      display: none !important;
+    }
+    .printable-area {
+      display: block !important;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      border: none;
+    }
+    main {
+      padding: 0 !important;
+    }
+  }
+  /* Custom styles for Leaflet map agent markers */
+  .leaflet-div-icon {
+    background: transparent;
+    border: none;
+  }
+  .agent-marker-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    border: 2px solid white;
+    transition: background-color 0.3s ease;
+  }
+  .agent-marker-icon svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+  }
+  .agent-status-idle {
+    background-color: #3b82f6; /* blue-500 */
+  }
+  .agent-status-in_progress {
+    background-color: #a855f7; /* purple-500 */
+  }
+  .agent-status-busy {
+    background-color: #f97316; /* orange-500 */
+  }
+  .agent-status-offline {
+    background-color: #64748b; /* slate-500 */
+    opacity: 0.7;
+  }
+  /* Utility to hide scrollbars */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  /* Modern scrollbar for sidebar */
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  .sidebar-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+  /* PWA Window Controls Overlay (Windows 10/11 & macOS native titlebar integration) */
+  @media (display-mode: window-controls-overlay), (display-mode: standalone) {
+    .pwa-window-titlebar {
+      app-region: drag;
+      -webkit-app-region: drag;
+    }
+    .pwa-non-draggable, button, input, select, a {
+      app-region: no-drag;
+      -webkit-app-region: no-drag;
+    }
+  }
+</style>
+</head>
+  <body class="bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-950 dark:text-slate-100 antialiased transition-colors duration-300">
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+    <script>
+      (function() {
+        // Modern PWA Service Worker Registration with offline cache preservation
+        if ('serviceWorker' in navigator) {
+          const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          const isSecure = window.location.protocol === 'https:' || isLocalhost;
+          
+          if (isSecure) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                  console.log('⚡ [PWA Engine] Service worker registered with scope:', registration.scope);
+                  if ('sync' in registration) {
+                    registration.sync.register('sync-pending-operations').catch(() => {});
+                  }
+                })
+                .catch(err => {
+                  console.info('ServiceWorker notice:', err.message || err);
+                });
+            });
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
